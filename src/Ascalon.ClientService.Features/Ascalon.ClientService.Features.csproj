@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ascalon.MefiatR.Validator.Fluent" Version="1.0.0" />
+    <PackageReference Include="Ascalon.Uow" Version="1.0.0" />
+    <PackageReference Include="MediatR" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ascalon.ClientService.Repositories\Ascalon.ClientService.Repositories.csproj" />
+  </ItemGroup>
+
+</Project>
