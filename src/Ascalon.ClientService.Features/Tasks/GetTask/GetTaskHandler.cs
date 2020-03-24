@@ -22,12 +22,16 @@ namespace Ascalon.ClientService.Features.Tasks.GetTask
 
         public async Task<Tasks.Dtos.Task> Handle(GetTaskQuery request, CancellationToken cancellationToken)
         {
-            var task = await _tasksRepository.GetTaskByIdAsync(request.Id);
+            return await _memoryCache.GetOrCreate(request.Id.ToString(), async options => 
+            {
+                var task = await _tasksRepository.GetTaskByIdAsync(request.Id);
 
-            if (task == null)
-                throw new Exception();
+                if (task == null)
+                    throw new Exception();
 
-            return task.ToQueryTask();
+                return task.ToQueryTask();
+            });
+            
         }
     }
 }

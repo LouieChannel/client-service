@@ -31,7 +31,14 @@ namespace Ascalon.ClientService.Repositories
 
         public virtual Task<List<Task>> GetTasks() => Entities.ToListAsync();
 
-        public virtual ValueTask<EntityEntry<Task>> CreateTaskAsync(Task task) => Entities.AddAsync(task);
+        public virtual Task<Task> CreateTaskAsync(Task task)
+        {
+            return TaskThread.Run(() =>
+            {
+                Add(task);
+                return task;
+            });
+        }
 
         public virtual Task<bool> ExistAsync(int id) => Entities.AnyAsync(a => a.Id == id);
     }

@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Ascalon.ClientService.Features.Tasks.Dtos;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace Ascalon.ClientService.Features.Tasks.Dtos
+namespace Ascalon.ClientService.Features.Tasks.UpdateTask
 {
-    /// <summary>
-    /// Информация о задаче водителя.
-    /// </summary>
-    public class Task
+    public class UpdateTaskCommand : IRequest
     {
         /// <summary>
         /// Возвращает или задаёт идентификатор задачи.

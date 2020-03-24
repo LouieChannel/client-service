@@ -1,5 +1,7 @@
 using Ascalon.ClientService.DataBaseContext;
+using Ascalon.ClientService.Features.Tasks.CreateTask;
 using Ascalon.ClientService.Features.Tasks.GetTask;
+using Ascalon.ClientService.Features.Tasks.UpdateTask;
 using Ascalon.ClientService.Features.Users.GetUser;
 using Ascalon.Uow;
 using Ascalon.Uow.Ef;
@@ -36,6 +38,8 @@ namespace Ascalon.ClientSerice
 
             services.ConfigureGetUser();
             services.ConfigureGetTask();
+            services.ConfigureCreateTask();
+            services.ConfigureUpdateTask();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

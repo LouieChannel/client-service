@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Ascalon.MefiatR.Validator.Fluent" Version="1.0.0" />
-    <PackageReference Include="Ascalon.Uow" Version="1.0.0" />
+    <PackageReference Include="Ascalon.Uow" Version="1.1.0" />
     <PackageReference Include="MediatR" Version="8.0.1" />
   </ItemGroup>
 

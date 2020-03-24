@@ -1,17 +1,10 @@
-﻿using System;
+﻿using Ascalon.ClientService.Features.Tasks.Dtos;
+using MediatR;
 
-namespace Ascalon.ClientService.Features.Tasks.Dtos
+namespace Ascalon.ClientService.Features.Tasks.CreateTask
 {
-    /// <summary>
-    /// Информация о задаче водителя.
-    /// </summary>
-    public class Task
+    public class CreateTaskCommand : IRequest
     {
-        /// <summary>
-        /// Возвращает или задаёт идентификатор задачи.
-        /// </summary>
-        public int Id { get; set; }
-
         /// <summary>
         /// Возвращает или задаёт идентификатор водителя.
         /// </summary>
@@ -51,10 +44,5 @@ namespace Ascalon.ClientService.Features.Tasks.Dtos
         /// Возвращает или задаёт основное задание.
         /// </summary>
         public string Entity { get; set; }
-
-        /// <summary>
-        /// Возвращает или задаёт время создания задания.
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
     }
 }
