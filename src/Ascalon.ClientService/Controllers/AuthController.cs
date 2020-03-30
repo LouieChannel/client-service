@@ -24,6 +24,7 @@ namespace Ascalon.ClientSerice.Controllers
                 Password = password
             });
 
+            Response.Cookies.Append("Id", user.Id.ToString());
             Response.Cookies.Append("Role", user.Role);
             Response.Cookies.Append("Name", user.FullName);
 
@@ -33,6 +34,7 @@ namespace Ascalon.ClientSerice.Controllers
         [HttpGet("logout")]
         public ActionResult Logout()
         {
+            Response.Cookies.Delete("Id");
             Response.Cookies.Delete("Role");
             Response.Cookies.Delete("Name");
 

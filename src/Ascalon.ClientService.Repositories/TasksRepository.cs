@@ -1,6 +1,7 @@
 ﻿using Ascalon.Uow.Ef;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,8 +20,8 @@ namespace Ascalon.ClientService.Repositories
             .Where(i => i.DriverId == driverId)
             .ToListAsync();
 
-        public virtual Task<Task> GetTask(int driverId, short statusId) => Entities
-            .Where(i => i.DriverId == driverId && i.Status == statusId)
+        public virtual Task<Task> GetTaskAsync(int driverId, short statusId, DateTime dateTime) => Entities
+            .Where(i => i.DriverId == driverId && i.Status == statusId && dateTime == i.CreatedAt)
             .FirstOrDefaultAsync();
 
         public virtual Task<Task> GetTaskByIdAsync(int id) => Entities.Where(i => i.Id == id)

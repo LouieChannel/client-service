@@ -18,7 +18,7 @@ namespace Ascalon.ClientService.Features.Tasks.GetTask.Dtos
                 Id = task.Id,
                 StartLatitude = task.StartLatitude,
                 StartLongitude = task.StartLongitude,
-                Status = task.Status
+                Status = (StatusType)task.Status
             };
         }
     }

@@ -6,6 +6,11 @@
     public class User
     {
         /// <summary>
+        /// Возвращает или задаёт идентификатор пользователя.
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
         /// Возвращает или задаёт наименование роли.
         /// </summary>
         public string Role { get; set; }

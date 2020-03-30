@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Ascalon.ClientService.Features.Tasks.CreateTask
 {
-    public class CreateTaskCommand : IRequest
+    public class CreateTaskCommand : IRequest<Task>
     {
         /// <summary>
         /// Возвращает или задаёт идентификатор водителя.

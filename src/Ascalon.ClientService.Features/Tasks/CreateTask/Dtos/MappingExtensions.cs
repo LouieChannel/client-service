@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Ascalon.ClientService.Features.Tasks.Dtos;
+using System;
 using DatabaseContext = Ascalon.ClientService.DataBaseContext;
-using DtosTasks = Ascalon.ClientService.Features.Tasks.Dtos;
 
 namespace Ascalon.ClientService.Features.Tasks.CreateTask.Dtos
 {
@@ -17,14 +17,14 @@ namespace Ascalon.ClientService.Features.Tasks.CreateTask.Dtos
                 EndLongitude = task.EndLongitude,
                 StartLatitude = task.StartLatitude,
                 StartLongitude = task.StartLongitude,
-                Status = task.Status,
+                Status = (short)task.Status,
                 Entity = task.Entity
             };
         }
 
-        public static DtosTasks.Task ToCommandTask(this DatabaseContext.Task task)
+        public static Task ToCommandTask(this DatabaseContext.Task task)
         {
-            return new DtosTasks.Task()
+            return new Task()
             {
                 Id = task.Id,
                 Entity = task.Entity,
@@ -35,7 +35,7 @@ namespace Ascalon.ClientService.Features.Tasks.CreateTask.Dtos
                 EndLongitude = task.EndLongitude,
                 StartLatitude = task.StartLatitude,
                 StartLongitude = task.StartLongitude,
-                Status = task.Status
+                Status = (StatusType)task.Status
             };
         }
     }

@@ -12,7 +12,7 @@ using Ascalon.ClientService.Features.Tasks.CreateTask.Dtos;
 
 namespace Ascalon.ClientService.Features.Tasks.CreateTask
 {
-    public class CreateTaskHandler : IRequestHandler<CreateTaskCommand, Unit>
+    public class CreateTaskHandler : IRequestHandler<CreateTaskCommand, DtosTasks.Task>
     {
         private readonly TasksRepository _tasksRepository;
 
@@ -21,12 +21,14 @@ namespace Ascalon.ClientService.Features.Tasks.CreateTask
             _tasksRepository = uow.GetRepository<TasksRepository>();
         }
 
-        public async Task<Unit> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
+        public async Task<DtosTasks.Task> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
         {
-            if (await _tasksRepository.CreateTaskAsync(request.ToEntityTask()) == null)
+            var result = await _tasksRepository.CreateTaskAsync(request.ToEntityTask());
+
+            if (result == null)
                 throw new Exception();
 
-            return Unit.Value;
+            return result.ToCommandTask();
         }
     }
 }

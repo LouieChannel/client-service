@@ -8,6 +8,7 @@ namespace Ascalon.ClientService.Features.Users.GetUser.Dtos
         {
             return new UsersDtos.User()
             {
+                Id = user.Id,
                 FullName = user.FullName,
                 Role = roleName
             };

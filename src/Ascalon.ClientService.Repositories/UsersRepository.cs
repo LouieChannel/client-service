@@ -1,6 +1,7 @@
 ﻿using Ascalon.ClientService.DataBaseContext;
 using Ascalon.Uow.Ef;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,6 +20,9 @@ namespace Ascalon.ClientService.Repositories
         public virtual Task<User> GetDriverWithoutDumper(int roleId) => Entities
             .Where(i => !i.DumperId.HasValue && i.RoleId == roleId)
             .FirstOrDefaultAsync();
+
+        public virtual Task<List<User>> GetDrivers() => Entities.Where(i => i.RoleId == 2)
+            .ToListAsync();
 
         public virtual Task<bool> ExistAsync(string login, string password) => Entities
             .AnyAsync(a => a.Login == login && a.Password == password);
