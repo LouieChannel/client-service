@@ -8,8 +8,8 @@ namespace Ascalon.ClientService.Features.Tasks.CreateTask.Dtos
     {
         public static DatabaseContext.Task ToEntityTask(this CreateTaskCommand task)
         {
-            return new DatabaseContext.Task() 
-            { 
+            return new DatabaseContext.Task()
+            {
                 CreatedAt = DateTime.Now,
                 Description = task.Description,
                 DriverId = task.DriverId,

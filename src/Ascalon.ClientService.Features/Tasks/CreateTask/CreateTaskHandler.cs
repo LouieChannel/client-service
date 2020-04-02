@@ -1,14 +1,11 @@
-﻿using DtosTasks = Ascalon.ClientService.Features.Tasks.Dtos;
+﻿using Ascalon.ClientService.Features.Tasks.CreateTask.Dtos;
+using Ascalon.ClientService.Repositories;
+using Ascalon.Uow;
 using MediatR;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Ascalon.Uow;
-using Microsoft.Extensions.Caching.Memory;
-using Ascalon.ClientService.Repositories;
-using System.Threading.Tasks;
 using System.Threading;
-using Ascalon.ClientService.Features.Tasks.CreateTask.Dtos;
+using System.Threading.Tasks;
+using DtosTasks = Ascalon.ClientService.Features.Tasks.Dtos;
 
 namespace Ascalon.ClientService.Features.Tasks.CreateTask
 {

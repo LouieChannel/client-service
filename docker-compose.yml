@@ -15,7 +15,7 @@ services:
       - clientservice
 
   migrations:
-    image: docker.pkg.github.com/louiechannel/client-service-db/client-service-db:1.0.0
+    image: docker.pkg.github.com/louiechannel/client-service-db/client-service-db:1.0.1
     container_name: client-service-migrations
     environment: 
       CONNECTION_STRING: "Host=db; Username=postgres; Password=postgres"

@@ -1,5 +1,4 @@
-﻿using Ascalon.ClientService.Features.Tasks.CreateTask;
-using Ascalon.ClientService.Features.Tasks.Dtos;
+﻿using Ascalon.ClientService.Features.Exceptions;
 using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
 using MediatR;
@@ -7,23 +6,22 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using ThreadTask = System.Threading.Tasks.Task;
+using System.Threading.Tasks;
 
 namespace Ascalon.ClientService.Hubs
 {
-    public class LogistHub : BaseHub
+    public class DriverHub : BaseHub
     {
-        private readonly ILogger<LogistHub> _logger;
+        private readonly ILogger<DriverHub> _logger;
         private readonly IMemoryCache _cache;
         private readonly TasksRepository _tasksRepository;
         private readonly IServiceProvider _serviceProvider;
 
-        public LogistHub(
+        public DriverHub(
             IServiceProvider serviceProvider,
-            ILogger<LogistHub> logger,
+            ILogger<DriverHub> logger,
             IUnitOfWork uow,
             IMemoryCache cache) : base(logger)
         {
@@ -33,25 +31,28 @@ namespace Ascalon.ClientService.Hubs
             _logger = logger;
         }
 
-        public async ThreadTask CreateTask(string createTaskCommand)
+        public async Task UpdateStatus(int taskId, short statusId)
         {
             try
             {
                 using var scope = _serviceProvider.CreateScope();
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                var request = JsonConvert.DeserializeObject<CreateTaskCommand>(createTaskCommand);
+                _logger.LogInformation($"{nameof(DriverHub)} with connectionId '{Context.ConnectionId}' received message in method '{nameof(UpdateStatus)}'");
 
-                _logger.LogInformation($"{nameof(LogistHub)} with connectionId '{Context.ConnectionId}' received message in method '{nameof(CreateTask)}'");
+                var task = await _tasksRepository.GetTaskByIdAsync(taskId);
 
-                var task = await mediator.Send(request);
+                if (task == null)
+                    throw new NotFoundException();
 
-                await Clients.Groups(new List<string>() { "Logist", request.DriverId.ToString() }).SendAsync(nameof(CreateTask),
-                    (await _tasksRepository.GetTaskAsync(task.DriverId, (short)task.Status, task.CreatedAt)).ToQueryTask());
+                task.Status = statusId;
+
+                await Clients.Groups(new List<string>() { "Logist", task.DriverId.ToString() }).SendAsync(nameof(UpdateStatus),
+                    (await _tasksRepository.UpdateTaskAsync(task)).Entity);
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Was occured error in method {nameof(CreateTask)}.", exception);
+                _logger.LogError($"Was occured error in method {nameof(UpdateStatus)}.", exception);
             }
         }
     }

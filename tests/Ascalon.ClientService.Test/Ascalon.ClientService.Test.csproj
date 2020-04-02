@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Ascalon.ClientService.Features\Ascalon.ClientService.Features.csproj" />
     <ProjectReference Include="..\..\src\Ascalon.ClientService\Ascalon.ClientService.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Ascalon.ClientService.DataBaseContext
 {
@@ -38,7 +40,9 @@ namespace Ascalon.ClientService.DataBaseContext
             {
                 entity.HasComment("Список задач");
 
-                entity.Property(e => e.CreatedAt).HasComment("Дата и время создания задания");
+                entity.Property(e => e.CreatedAt)
+                    .HasDefaultValueSql("now()")
+                    .HasComment("Дата и время создания задания");
 
                 entity.Property(e => e.Description).HasComment("Описание задания");
 

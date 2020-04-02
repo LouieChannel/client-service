@@ -1,9 +1,13 @@
 using Ascalon.ClientService.DataBaseContext;
+using Ascalon.ClientService.Features.Exceptions;
 using Ascalon.ClientService.Features.Tasks.CreateTask;
+using Ascalon.ClientService.Features.Tasks.GetAllTask;
+using Ascalon.ClientService.Features.Tasks.GetDriverTask;
 using Ascalon.ClientService.Features.Tasks.GetTask;
 using Ascalon.ClientService.Features.Tasks.UpdateTask;
 using Ascalon.ClientService.Features.Users.GetUser;
 using Ascalon.ClientService.Hubs;
+using Ascalon.ClientService.Middlewares;
 using Ascalon.Uow;
 using Ascalon.Uow.Ef;
 using MediatR;
@@ -46,7 +50,7 @@ namespace Ascalon.ClientSerice
                 builder =>
                 {
                     builder
-                        .WithOrigins("http://localhost:5000")
+                        .WithOrigins(Configuration.GetSection("ClientWebsite:Host").Value)
                         .AllowCredentials()
                         .AllowAnyHeader()
                         .AllowAnyMethod();
@@ -57,12 +61,18 @@ namespace Ascalon.ClientSerice
 
             services.ConfigureGetUser();
             services.ConfigureGetTask();
+            services.ConfigureGetAllTask();
             services.ConfigureCreateTask();
             services.ConfigureUpdateTask();
+            services.ConfigureGetDriverTask();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseMiddleware<BadRequestMiddleware>();
+            app.UseMiddleware<NotFoundMiddleware>();
+            app.UseMiddleware<ForbiddenException>();
+
             app.UseRouting();
 
             app.UseCors(MyAllowSpecificOrigins);
@@ -70,9 +80,10 @@ namespace Ascalon.ClientSerice
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<LogistHub>("/logist");
+                endpoints.MapHub<LogistHub>("/driver");
                 endpoints.MapGet("/", context => context.Response.WriteAsync("Welcome in Client Service!"));
                 endpoints.MapControllers();
-            }); 
+            });
         }
     }
 }

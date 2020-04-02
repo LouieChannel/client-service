@@ -1,8 +1,6 @@
 ﻿using Ascalon.ClientService.Features.Tasks.Dtos;
 using MediatR;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Ascalon.ClientService.Features.Tasks.UpdateTask
 {

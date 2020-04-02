@@ -1,7 +1,6 @@
-﻿using Ascalon.ClientService.Features.Tasks.Dtos;
-using DataTask = Ascalon.ClientService.DataBaseContext.Task;
+﻿using DataTask = Ascalon.ClientService.DataBaseContext.Task;
 
-namespace Ascalon.ClientService.Features.Tasks.GetTask.Dtos
+namespace Ascalon.ClientService.Features.Tasks.Dtos
 {
     public static class MappingExtensions
     {

@@ -1,10 +1,7 @@
 ﻿using Ascalon.ClientService.Features.Tasks.Dtos;
 using Ascalon.MefiatR.Validator.Fluent;
-using Microsoft.Extensions.DependencyInjection;
 using Ascalon.Uow.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Ascalon.ClientService.Features.Tasks.CreateTask
 {

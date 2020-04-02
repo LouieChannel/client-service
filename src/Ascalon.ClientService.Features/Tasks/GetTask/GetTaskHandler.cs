@@ -1,4 +1,4 @@
-﻿using Ascalon.ClientService.Features.Tasks.GetTask.Dtos;
+﻿using Ascalon.ClientService.Features.Tasks.Dtos;
 using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
 using MediatR;
@@ -22,7 +22,7 @@ namespace Ascalon.ClientService.Features.Tasks.GetTask
 
         public async Task<Tasks.Dtos.Task> Handle(GetTaskQuery request, CancellationToken cancellationToken)
         {
-            return await _memoryCache.GetOrCreate(request.Id.ToString(), async options => 
+            return await _memoryCache.GetOrCreate(request.Id.ToString(), async options =>
             {
                 var task = await _tasksRepository.GetTaskByIdAsync(request.Id);
 
@@ -31,7 +31,7 @@ namespace Ascalon.ClientService.Features.Tasks.GetTask
 
                 return task.ToQueryTask();
             });
-            
+
         }
     }
 }
