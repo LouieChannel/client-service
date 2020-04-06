@@ -1,9 +1,8 @@
 version: '3'
 
-networks:
-  clientservice:
-  
 services:
+
+      
   db:
     image: postgres:12.1
     container_name: client-service-db
@@ -11,8 +10,6 @@ services:
       - 36000:5432
     environment: 
       POSTGRES_PASSWORD: "postgres"
-    networks:
-      - clientservice
 
   migrations:
     image: docker.pkg.github.com/louiechannel/client-service-db/client-service-db:1.0.1
@@ -22,5 +19,5 @@ services:
       DELAY: 3000
     depends_on:
       - db
-    networks:
-      - clientservice  
+      
+ 

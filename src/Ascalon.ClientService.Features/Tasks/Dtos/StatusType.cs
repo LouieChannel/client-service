@@ -18,6 +18,11 @@
         /// <summary>
         /// Задача выполнена.
         /// </summary>
-        Done = 2
+        Done = 2,
+
+        /// <summary>
+        /// Задача отменена.
+        /// </summary>
+        Cancelled = 3,
     }
 }

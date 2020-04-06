@@ -1,5 +1,4 @@
 using Ascalon.ClientService.DataBaseContext;
-using Ascalon.ClientService.Features.Exceptions;
 using Ascalon.ClientService.Features.Tasks.CreateTask;
 using Ascalon.ClientService.Features.Tasks.GetAllTask;
 using Ascalon.ClientService.Features.Tasks.GetDriverTask;
@@ -36,7 +35,6 @@ namespace Ascalon.ClientSerice
         {
             services.AddControllers();
 
-            services.AddLogging();
             services.AddMemoryCache();
 
             services.AddDbContext<ClientServiceContext>(options => options.UseNpgsql(Configuration.GetConnectionString("ClientService")));
@@ -71,7 +69,7 @@ namespace Ascalon.ClientSerice
         {
             app.UseMiddleware<BadRequestMiddleware>();
             app.UseMiddleware<NotFoundMiddleware>();
-            app.UseMiddleware<ForbiddenException>();
+            app.UseMiddleware<ForbiddenMiddleware>();
 
             app.UseRouting();
 
@@ -80,7 +78,7 @@ namespace Ascalon.ClientSerice
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<LogistHub>("/logist");
-                endpoints.MapHub<LogistHub>("/driver");
+                endpoints.MapHub<DriverHub>("/driver");
                 endpoints.MapGet("/", context => context.Response.WriteAsync("Welcome in Client Service!"));
                 endpoints.MapControllers();
             });

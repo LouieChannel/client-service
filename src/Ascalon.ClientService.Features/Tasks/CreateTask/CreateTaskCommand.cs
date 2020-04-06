@@ -8,7 +8,12 @@ namespace Ascalon.ClientService.Features.Tasks.CreateTask
         /// <summary>
         /// Возвращает или задаёт идентификатор водителя.
         /// </summary>
-        public int DriverId { get; set; }
+        public User Driver { get; set; }
+
+        /// <summary>
+        /// Возвращает или задаёт идентификатор оператора-логиста.
+        /// </summary>
+        public User Logist { get; set; }
 
         /// <summary>
         /// Возвращает или задаёт описание задания.

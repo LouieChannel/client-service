@@ -8,23 +8,28 @@ using System.Threading.Tasks;
 
 namespace Ascalon.ClientService.Features.Tasks.UpdateTask
 {
-    public class UpdateTaskHandler : IRequestHandler<UpdateTaskCommand, Unit>
+    public class UpdateTaskHandler : IRequestHandler<UpdateTaskCommand, Tasks.Dtos.Task>
     {
         private readonly TasksRepository _tasksRepository;
+        private readonly UsersRepository _usersRepository;
 
         public UpdateTaskHandler(IUnitOfWork uow)
         {
             _tasksRepository = uow.GetRepository<TasksRepository>();
+            _usersRepository = uow.GetRepository<UsersRepository>();
         }
 
-        public async Task<Unit> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
+        public async Task<Tasks.Dtos.Task> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
         {
             var updatedTask = await _tasksRepository.UpdateTaskAsync(request.ToDataTask());
 
             if (updatedTask == null)
                 throw new Exception();
 
-            return Unit.Value;
+            updatedTask.Entity.Driver = await _usersRepository.GetUserByIdAsync(updatedTask.Entity.DriverId);
+            updatedTask.Entity.Logist = await _usersRepository.GetUserByIdAsync(updatedTask.Entity.LogistId);
+
+            return updatedTask.Entity.ToCommandTask();
         }
     }
 }

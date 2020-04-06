@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -33,9 +32,14 @@ namespace Ascalon.ClientService.DataBaseContext
         public string Entity { get; set; }
         [Column("created_at", TypeName = "timestamp with time zone")]
         public DateTime CreatedAt { get; set; }
+        [Column("logist_id")]
+        public int LogistId { get; set; }
 
         [ForeignKey(nameof(DriverId))]
-        [InverseProperty(nameof(User.Tasks))]
+        [InverseProperty(nameof(User.TaskDrivers))]
         public virtual User Driver { get; set; }
+        [ForeignKey(nameof(LogistId))]
+        [InverseProperty(nameof(User.TaskLogists))]
+        public virtual User Logist { get; set; }
     }
 }

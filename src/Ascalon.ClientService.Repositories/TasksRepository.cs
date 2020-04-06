@@ -14,8 +14,12 @@ namespace Ascalon.ClientService.Repositories
     {
         private const short StatusTypeDone = 2;
 
+        private readonly DbContext _dbContext;
+
+
         public TasksRepository(DbContext context) : base(context)
         {
+            _dbContext = context;
         }
 
         public virtual Task<List<Task>> GetTasksByDriverIdAsync(int driverId) => Entities
@@ -34,17 +38,16 @@ namespace Ascalon.ClientService.Repositories
             TaskThread.Run(() => Entities
             .Update(task));
 
-        public virtual async Task<List<Task>> GetTasks(DateTime dateTimeFiltered) => (await Entities.ToListAsync())
-            .Where(i => (i.CreatedAt - dateTimeFiltered).TotalDays == 0)
-            .ToList();
+        public virtual async Task<List<Task>> GetTasks(DateTime filteredDate) => (await Entities.ToListAsync()
+            ).Where(i => (filteredDate.Date <= i.CreatedAt) && (i.CreatedAt < filteredDate.AddDays(1).Date)).ToList();
 
-        public virtual Task<Task> CreateTaskAsync(Task task)
+        public virtual ValueTask<EntityEntry<Task>> CreateTaskAsync(Task task)
         {
-            return TaskThread.Run(() =>
-            {
-                Add(task);
-                return task;
-            });
+            var result = _dbContext.AddAsync(task);
+
+            _dbContext.SaveChanges();
+
+            return result;
         }
 
         public virtual Task<bool> ExistAsync(int id) => Entities.AnyAsync(a => a.Id == id);

@@ -13,9 +13,14 @@ namespace Ascalon.ClientService.Features.Tasks.Dtos
         public int Id { get; set; }
 
         /// <summary>
-        /// Возвращает или задаёт идентификатор водителя.
+        /// Возвращает или задаёт информацию о водителе.
         /// </summary>
-        public int DriverId { get; set; }
+        public User Driver { get; set; }
+
+        /// <summary>
+        /// Возвращает или задаёт информацию о опреаторе-логисте.
+        /// </summary>
+        public User Logist { get; set; }
 
         /// <summary>
         /// Возвращает или задаёт описание задания.

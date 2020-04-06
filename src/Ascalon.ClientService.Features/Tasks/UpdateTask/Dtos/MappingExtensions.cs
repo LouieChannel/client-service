@@ -1,4 +1,5 @@
-﻿using DataTask = Ascalon.ClientService.DataBaseContext.Task;
+﻿using Ascalon.ClientService.Features.Tasks.Dtos;
+using DataTask = Ascalon.ClientService.DataBaseContext.Task;
 
 namespace Ascalon.ClientService.Features.Tasks.UpdateTask.Dtos
 {
@@ -10,13 +11,32 @@ namespace Ascalon.ClientService.Features.Tasks.UpdateTask.Dtos
             {
                 CreatedAt = task.CreatedAt,
                 Description = task.Description,
-                DriverId = task.DriverId,
+                DriverId = task.Driver.Id,
+                LogistId = task.Logist.Id,
                 EndLatitude = task.EndLatitude,
                 EndLongitude = task.EndLongitude,
                 Id = task.Id,
                 StartLatitude = task.StartLatitude,
                 StartLongitude = task.StartLongitude,
                 Status = (short)task.Status,
+                Entity = task.Entity
+            };
+        }
+
+        public static Task ToCommandTask(this DataTask task)
+        {
+            return new Task()
+            {
+                CreatedAt = task.CreatedAt,
+                Description = task.Description,
+                Driver = task.Driver.ToCommandUser(),
+                Logist = task.Logist.ToCommandUser(),
+                EndLatitude = task.EndLatitude,
+                EndLongitude = task.EndLongitude,
+                Id = task.Id,
+                StartLatitude = task.StartLatitude,
+                StartLongitude = task.StartLongitude,
+                Status = (StatusType)task.Status,
                 Entity = task.Entity
             };
         }

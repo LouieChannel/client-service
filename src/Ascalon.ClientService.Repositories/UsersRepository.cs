@@ -17,11 +17,14 @@ namespace Ascalon.ClientService.Repositories
             .Where(a => a.Login == login && a.Password == password)
             .FirstOrDefaultAsync();
 
-        public virtual Task<User> GetDriverWithoutDumper(int roleId) => Entities
+        public virtual Task<User> GetUserByIdAsync(int id) => Entities.Where(i => i.Id == id)
+            .FirstOrDefaultAsync();
+
+        public virtual Task<User> GetDriverWithoutDumperAsync(int roleId) => Entities
             .Where(i => !i.DumperId.HasValue && i.RoleId == roleId)
             .FirstOrDefaultAsync();
 
-        public virtual Task<List<User>> GetDrivers() => Entities.Where(i => i.RoleId == 2)
+        public virtual Task<List<User>> GetDriversAsync() => Entities.Where(i => i.RoleId == 2)
             .ToListAsync();
 
         public virtual Task<bool> ExistAsync(string login, string password) => Entities

@@ -1,4 +1,5 @@
-﻿using DataTask = Ascalon.ClientService.DataBaseContext.Task;
+﻿using DatabaseContext = Ascalon.ClientService.DataBaseContext;
+using DataTask = Ascalon.ClientService.DataBaseContext.Task;
 
 namespace Ascalon.ClientService.Features.Tasks.Dtos
 {
@@ -10,7 +11,8 @@ namespace Ascalon.ClientService.Features.Tasks.Dtos
             {
                 CreatedAt = task.CreatedAt,
                 Description = task.Description,
-                DriverId = task.DriverId,
+                Driver = task.Driver.ToCommandUser(),
+                Logist = task.Logist.ToCommandUser(),
                 EndLatitude = task.EndLatitude,
                 EndLongitude = task.EndLongitude,
                 Entity = task.Entity,
@@ -18,6 +20,16 @@ namespace Ascalon.ClientService.Features.Tasks.Dtos
                 StartLatitude = task.StartLatitude,
                 StartLongitude = task.StartLongitude,
                 Status = (StatusType)task.Status
+            };
+        }
+
+        public static User ToCommandUser(this DatabaseContext.User user)
+        {
+            return new User()
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                DumperId = user.DumperId
             };
         }
     }

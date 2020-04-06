@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,7 +9,8 @@ namespace Ascalon.ClientService.DataBaseContext
     {
         public User()
         {
-            Tasks = new HashSet<Task>();
+            TaskDrivers = new HashSet<Task>();
+            TaskLogists = new HashSet<Task>();
         }
 
         [Key]
@@ -37,6 +37,8 @@ namespace Ascalon.ClientService.DataBaseContext
         [InverseProperty("Users")]
         public virtual Role Role { get; set; }
         [InverseProperty(nameof(Task.Driver))]
-        public virtual ICollection<Task> Tasks { get; set; }
+        public virtual ICollection<Task> TaskDrivers { get; set; }
+        [InverseProperty(nameof(Task.Logist))]
+        public virtual ICollection<Task> TaskLogists { get; set; }
     }
 }

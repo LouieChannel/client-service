@@ -1,5 +1,9 @@
-﻿using Ascalon.ClientService.Features.Tasks.CreateTask;
-using Ascalon.ClientService.Features.Tasks.Dtos;
+﻿using Ascalon.ClientService.Features.Exceptions;
+using Ascalon.ClientService.Features.Tasks.CreateTask;
+using Ascalon.ClientService.Features.Tasks.GetAllTask;
+using Ascalon.ClientService.Features.Tasks.UpdateTask;
+using Ascalon.ClientService.Features.Users.Dtos;
+using Ascalon.ClientService.Infrastructure;
 using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
 using MediatR;
@@ -7,9 +11,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using ThreadTask = System.Threading.Tasks.Task;
 
 namespace Ascalon.ClientService.Hubs
@@ -20,39 +22,135 @@ namespace Ascalon.ClientService.Hubs
         private readonly IMemoryCache _cache;
         private readonly TasksRepository _tasksRepository;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IHubContext<DriverHub> _driverHub;
+
 
         public LogistHub(
             IServiceProvider serviceProvider,
             ILogger<LogistHub> logger,
             IUnitOfWork uow,
-            IMemoryCache cache) : base(logger)
+            IMemoryCache cache,
+            IHubContext<DriverHub> driverHub) : base(logger)
         {
             _serviceProvider = serviceProvider;
             _cache = cache;
             _tasksRepository = uow.GetRepository<TasksRepository>();
             _logger = logger;
+            _driverHub = driverHub;
+        }
+
+        public async ThreadTask GetAllTasks(string filteredDate)
+        {
+            try
+            {
+                if (CheckRole())
+                    return;
+
+                if (string.IsNullOrEmpty(filteredDate))
+                    return;
+
+                DateTime.TryParse(filteredDate, out DateTime dateTime);
+
+                using var scope = _serviceProvider.CreateScope();
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                _logger.LogInformation($"{nameof(LogistHub)} with connectionId '{Context.ConnectionId}' received message in method '{nameof(GetAllTasks)}'");
+
+                var tasks = (await mediator.Send(new GetAllTaskQuery()
+                {
+                    DateFilter = dateTime,
+                })).ToJson();
+
+                await Clients.Caller.SendAsync(nameof(GetAllTasks), tasks);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Was occured error in method {nameof(GetAllTasks)}.", exception);
+            }
         }
 
         public async ThreadTask CreateTask(string createTaskCommand)
         {
             try
             {
+                if (CheckRole())
+                    return;
+
+                if (string.IsNullOrEmpty(createTaskCommand))
+                    return;
+
                 using var scope = _serviceProvider.CreateScope();
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                var request = JsonConvert.DeserializeObject<CreateTaskCommand>(createTaskCommand);
+                var request = createTaskCommand.FromJson<CreateTaskCommand>();
+
+                request.Logist = GetLogistInfomration();
 
                 _logger.LogInformation($"{nameof(LogistHub)} with connectionId '{Context.ConnectionId}' received message in method '{nameof(CreateTask)}'");
 
-                var task = await mediator.Send(request);
+                var task = (await mediator.Send(request)).ToJson();
 
-                await Clients.Groups(new List<string>() { "Logist", request.DriverId.ToString() }).SendAsync(nameof(CreateTask),
-                    (await _tasksRepository.GetTaskAsync(task.DriverId, (short)task.Status, task.CreatedAt)).ToQueryTask());
+                await Clients.Group("Logist").SendAsync(nameof(CreateTask), task);
+
+                await _driverHub.Clients.Group(request.Driver.Id.ToString()).SendAsync(nameof(CreateTask), task);
             }
             catch (Exception exception)
             {
                 _logger.LogError($"Was occured error in method {nameof(CreateTask)}.", exception);
             }
+        }
+
+        public async ThreadTask UpdateTask(string updateStatusCommand)
+        {
+            try
+            {
+                if (CheckRole())
+                    return;
+
+                if (string.IsNullOrEmpty(updateStatusCommand))
+                    return;
+
+                using var scope = _serviceProvider.CreateScope();
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                var request = updateStatusCommand.FromJson<UpdateTaskCommand>();
+
+                _logger.LogInformation($"{nameof(LogistHub)} with connectionId '{Context.ConnectionId}' received message in method '{nameof(UpdateTask)}'");
+
+                var result = (await mediator.Send(request)).ToJson();
+
+                await Clients.Group("Logist").SendAsync(nameof(UpdateTask), result);
+
+                await _driverHub.Clients.Group(request.Driver.Id.ToString()).SendAsync(nameof(UpdateTask), result);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Was occured error in method {nameof(UpdateTask)}.", exception);
+            }
+        }
+
+        private Features.Tasks.Dtos.User GetLogistInfomration()
+        {
+            var cookies = Context.GetHttpContext().Request.Cookies;
+
+            cookies.TryGetValue("Id", out string id);
+            cookies.TryGetValue("Name", out string fullName);
+
+            if (string.IsNullOrEmpty(id))
+                throw new NotFoundException();
+
+            return new Features.Tasks.Dtos.User()
+            {
+                Id = Convert.ToInt32(id),
+                FullName = fullName
+            };
+        }
+
+        private bool CheckRole()
+        {
+            Context.GetHttpContext().Request.Cookies.TryGetValue("Role", out string roleId);
+
+            return string.IsNullOrEmpty(roleId) || (roleId == RoleType.Driver.ToString());
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Ascalon.ClientService.DataBaseContext
 {
@@ -40,9 +38,7 @@ namespace Ascalon.ClientService.DataBaseContext
             {
                 entity.HasComment("Список задач");
 
-                entity.Property(e => e.CreatedAt)
-                    .HasDefaultValueSql("now()")
-                    .HasComment("Дата и время создания задания");
+                entity.Property(e => e.CreatedAt).HasComment("Дата и время создания задания");
 
                 entity.Property(e => e.Description).HasComment("Описание задания");
 
@@ -54,6 +50,8 @@ namespace Ascalon.ClientService.DataBaseContext
 
                 entity.Property(e => e.Entity).HasComment("Основное задание");
 
+                entity.Property(e => e.LogistId).HasComment("Идентификатор оператора-логиста");
+
                 entity.Property(e => e.StartLatitude).HasComment("Широта начала задания");
 
                 entity.Property(e => e.StartLongitude).HasComment("Долгота начала задания");
@@ -61,10 +59,16 @@ namespace Ascalon.ClientService.DataBaseContext
                 entity.Property(e => e.Status).HasComment("Статус задания");
 
                 entity.HasOne(d => d.Driver)
-                    .WithMany(p => p.Tasks)
+                    .WithMany(p => p.TaskDrivers)
                     .HasForeignKey(d => d.DriverId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("tasks_driver_id_fk");
+
+                entity.HasOne(d => d.Logist)
+                    .WithMany(p => p.TaskLogists)
+                    .HasForeignKey(d => d.LogistId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("tasks_logist_id_fk");
             });
 
             modelBuilder.Entity<User>(entity =>
