@@ -30,6 +30,12 @@ namespace Ascalon.ClientService.Test.DriverHubTests
                     Assert.NotEqual("[]", orderItem);
                 });
 
+                driverConnection.On<string>("DumperStatus", orderItem =>
+                {
+                    Assert.NotEqual("[]", orderItem);
+                });
+
+
                 await driverConnection.StartAsync();
 
                 await logistConnection.StartAsync();

@@ -6,6 +6,8 @@ using Ascalon.ClientService.Features.Tasks.GetTask;
 using Ascalon.ClientService.Features.Tasks.UpdateTask;
 using Ascalon.ClientService.Features.Users.GetUser;
 using Ascalon.ClientService.Hubs;
+using Ascalon.ClientService.Kafka;
+using Ascalon.ClientService.Kafka.Services;
 using Ascalon.ClientService.Middlewares;
 using Ascalon.Uow;
 using Ascalon.Uow.Ef;
@@ -63,6 +65,12 @@ namespace Ascalon.ClientSerice
             services.ConfigureCreateTask();
             services.ConfigureUpdateTask();
             services.ConfigureGetDriverTask();
+
+            services.Configure<DumperStateConsumerServiceOptions>(
+               Configuration.GetSection(nameof(DumperStateConsumerServiceOptions)));
+
+
+            services.AddHostedService<DumperStateConsumerService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

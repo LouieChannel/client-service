@@ -1,4 +1,5 @@
 ﻿using Ascalon.ClientService.Hubs;
+using Ascalon.ClientService.Infrastructure;
 using Ascalon.Kafka;
 using Ascalon.Kafka.Dtos;
 using Confluent.Kafka;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -21,6 +23,7 @@ namespace Ascalon.ClientService.Kafka.Services
         private readonly ILogger<DumperStateConsumerService> _logger;
         private readonly IHubContext<LogistHub> _logistHub;
         private readonly IMemoryCache _memoryCache;
+        private int counter = 0;
         private ConcurrentDictionary<int, Dictionary<int, int>> _neuralNetworkPredicts = new ConcurrentDictionary<int, Dictionary<int, int>>();
 
         public static ConcurrentDictionary<int, int> DriversTasks { get; set; } = new ConcurrentDictionary<int, int>();
@@ -50,12 +53,15 @@ namespace Ascalon.ClientService.Kafka.Services
                     { neuralNeworkPredict.Result, 1 }
                 });
 
-                if (neuralPredict.Count < 25)
+                if (counter < 25)
                 {
                     int value = neuralPredict.GetValueOrDefault(neuralNeworkPredict.Result, 1);
                     neuralPredict[neuralNeworkPredict.Result] = ++value;
+                    counter++;
                     return;
                 }
+
+                counter = 0;
 
                 int predict = neuralPredict.Where(i => i.Value.Equals(neuralPredict.Max(i => i.Value))).Select(i => i.Key).First();
 
@@ -81,7 +87,7 @@ namespace Ascalon.ClientService.Kafka.Services
                 {
                     Id = taskId,
                     State = predict
-                });
+                }.ToJson());
             }
             catch (Exception ex)
             {
