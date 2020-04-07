@@ -4,7 +4,6 @@ using Ascalon.ClientService.Features.Tasks.UpdateTask;
 using Ascalon.ClientService.Features.Users.Dtos;
 using Ascalon.ClientService.Infrastructure;
 using Ascalon.ClientService.Kafka;
-using Ascalon.ClientService.Kafka.Services;
 using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
 using MediatR;
@@ -13,6 +12,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using Task = System.Threading.Tasks.Task;
 
 namespace Ascalon.ClientService.Hubs
@@ -20,7 +20,7 @@ namespace Ascalon.ClientService.Hubs
     public class DriverHub : BaseHub
     {
         private readonly ILogger<DriverHub> _logger;
-        private readonly IMemoryCache _cache;
+        private readonly IMemoryCache _memoryCache;
         private readonly TasksRepository _tasksRepository;
         private readonly IServiceProvider _serviceProvider;
         private readonly IHubContext<LogistHub> _logistHub;
@@ -33,7 +33,7 @@ namespace Ascalon.ClientService.Hubs
             IHubContext<LogistHub> logistHub) : base(logger)
         {
             _serviceProvider = serviceProvider;
-            _cache = cache;
+            _memoryCache = cache;
             _tasksRepository = uow.GetRepository<TasksRepository>();
             _logger = logger;
             _logistHub = logistHub;
@@ -88,11 +88,21 @@ namespace Ascalon.ClientService.Hubs
 
                 var task = await mediator.Send(request);
 
+                var driverTasks = _memoryCache.GetOrCreate("DriversTasks", options =>
+                {
+                    return new ConcurrentDictionary<int, int>();
+                });
+
                 if (request.Status == StatusType.InProgress)
                 {
-                    DumperStateConsumerService.DriversTasks.TryAdd(task.Driver.DumperId.Value, task.Id);
+                    var notificationTasks = _memoryCache.GetOrCreate("NotificationTasks", options =>
+                    {
+                        return new ConcurrentDictionary<int, int>();
+                    });
 
-                    DumperStateConsumerService.NotificationTasks.TryGetValue(task.Driver.DumperId.Value, out int predict);
+                    driverTasks.TryAdd(task.Driver.DumperId.Value, task.Id);
+
+                    notificationTasks.TryGetValue(task.Driver.DumperId.Value, out int predict);
 
                     if (predict != 0)
                         await _logistHub.Clients.Group("Logist").SendAsync("DumperStatus", new DumperStatus()
@@ -103,7 +113,7 @@ namespace Ascalon.ClientService.Hubs
                 }
                 else if (request.Status == StatusType.Done || request.Status == StatusType.Cancelled)
                 {
-                    DumperStateConsumerService.DriversTasks.TryRemove(task.Driver.DumperId.Value, out int taskId);
+                    driverTasks.TryRemove(task.Driver.DumperId.Value, out int taskId);
                 }
 
                 var result = task.ToJson();

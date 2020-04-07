@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -25,10 +24,6 @@ namespace Ascalon.ClientService.Kafka.Services
         private readonly IMemoryCache _memoryCache;
         private int counter = 0;
         private ConcurrentDictionary<int, Dictionary<int, int>> _neuralNetworkPredicts = new ConcurrentDictionary<int, Dictionary<int, int>>();
-
-        public static ConcurrentDictionary<int, int> DriversTasks { get; set; } = new ConcurrentDictionary<int, int>();
-
-        public static ConcurrentDictionary<int, int> NotificationTasks { get; set; } = new ConcurrentDictionary<int, int>();
 
         public DumperStateConsumerService(
             IServiceProvider serviceProvider,
@@ -63,7 +58,14 @@ namespace Ascalon.ClientService.Kafka.Services
 
                 counter = 0;
 
+                _neuralNetworkPredicts.TryRemove(neuralNeworkPredict.Id, out Dictionary<int, int> oldData);
+
                 int predict = neuralPredict.Where(i => i.Value.Equals(neuralPredict.Max(i => i.Value))).Select(i => i.Key).First();
+
+                var driverTasks = _memoryCache.GetOrCreate("DriversTasks", options =>
+                {
+                    return new ConcurrentDictionary<int, int>();
+                });
 
                 _memoryCache.TryGetValue(neuralNeworkPredict.Id, out int oldPredict);
 
@@ -72,13 +74,18 @@ namespace Ascalon.ClientService.Kafka.Services
 
                 _memoryCache.Set(neuralNeworkPredict.Id, predict);
 
-                if (DriversTasks.Count == 0)
+                var notificationTasks = _memoryCache.GetOrCreate("NotificationTasks", options =>
                 {
-                    NotificationTasks.AddOrUpdate(neuralNeworkPredict.Id, predict, (key, value) => value = predict);
+                    return new ConcurrentDictionary<int, int>();
+                });
+
+                if (driverTasks.Count == 0)
+                {
+                    notificationTasks.AddOrUpdate(neuralNeworkPredict.Id, predict, (key, value) => value = predict);
                     return;
                 }
 
-                DriversTasks.TryGetValue(neuralNeworkPredict.Id, out int taskId);
+                driverTasks.TryGetValue(neuralNeworkPredict.Id, out int taskId);
 
                 if (taskId == 0)
                     return;
