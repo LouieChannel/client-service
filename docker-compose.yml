@@ -33,7 +33,7 @@ services:
     image: postgres:12.1
     container_name: client-service-db
     ports:
-      - 36000:5432
+      - 5432:5432
     environment: 
       POSTGRES_PASSWORD: "postgres"
 
@@ -72,7 +72,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
     ports:
-      - 5005:5005
+      - 5005:80
       
   streamserviceclient:
     image: docker.pkg.github.com/louiechannel/stream-service/stream-client-service:0.1.0
@@ -94,3 +94,19 @@ services:
       - kafka
     container_name: neuralnetworkservice2
     restart: on-failure
+    
+  clientservice:
+    image: docker.pkg.github.com/louiechannel/client-service/client-service:0.1.0
+    depends_on:
+      - kafka
+      - migrations
+    container_name: clientservice
+    restart: on-failure
+    command: >
+      /bin/bash -c "
+        sleep 110;
+      "
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - 5000:80
