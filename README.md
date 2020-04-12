@@ -2,7 +2,8 @@
 Данный сервис реализует взаимосвязь между оператором-логистом и водителем самосвалов. Данный комплекс является частью общей системы.
 
 В данном проекте у задачи могут быть всего 4 состояния:
-```
+```c#
+
 /// <summary>
 /// Информация о статусах задачи.
 /// </summary>
@@ -28,6 +29,7 @@ public enum StatusType : short
   /// </summary>
   Cancelled = 3,
  }
+ 
  ```
  У самосвала может быть 5 состояний:
 
@@ -62,15 +64,24 @@ public enum StatusType : short
 
 Метод получения всех задач созданых операторами:
 
-``` connection.send("GetAllTasks"); ```
+```typescript
+
+connection.send("GetAllTasks");
+
+```
 
 Данные прийдут только оператору который вызвал метод.
 
-``` connection.on("GetAllTasks", (tasks: string) => { ... }); ```
+```typescript 
+
+connection.on("GetAllTasks", (tasks: string) => { ... });
+
+```
 
 Пример данных которые могут прийти оператору:
 
-```
+```json
+
 [
   {
     "Id": 1,
@@ -99,11 +110,16 @@ public enum StatusType : short
 
 Метод создания задачи.
 
-``` connection.send("CreateTask", "createTaskCommand"); ```
+```typescript 
+
+connection.send("CreateTask", "createTaskCommand"); 
+
+```
 
 Пример json для параметра [createTaskCommand] :
 
-``` 
+```json
+
 {
   "Driver": {
     "Id": 2,
@@ -122,11 +138,16 @@ public enum StatusType : short
 
 Оповещение прийдёт всем операторам и водителю на котрого была назначена задача:
 
-``` connection.on("CreateTask", (task: string) => { ... }); ```
+```typescript 
+
+connection.on("CreateTask", (task: string) => { ... });
+
+```
 
 Пример данных которые могут прийти пользователям:
 
-```
+```json
+
 {
   "Id": 1,
   "Driver": {
@@ -153,11 +174,16 @@ public enum StatusType : short
 
 Метод изменение задачи. Изменять можно задачи только тогда, когда она в статусе "Задача создана (0)"
 
-``` connection.send("UpdateTask", "updateStatusCommand"); ```
+```typescript 
+
+connection.send("UpdateTask", "updateStatusCommand");
+
+```
 
 Пример json для параметра [updateStatusCommand] :
 
-``` 
+```json
+
 {
   "Id": 1,
   "Logist": {
@@ -183,11 +209,16 @@ public enum StatusType : short
 
 Оповещение прийдёт всем операторам и водителю на котрого была назначена задача:
 
-``` connection.on("UpdateTask", (task: string) => { ... }); ```
+```typescript
+
+connection.on("UpdateTask", (task: string) => { ... });
+
+```
 
 Пример данных которые могут прийти пользователям:
 
-```
+```json
+
 {
   "Id": 1,
   "Logist": {
@@ -214,15 +245,21 @@ public enum StatusType : short
 
 Данные приходят только операторам.
 
-``` connection.on("DumperStatus", (dumperStatus: string) => { ... }); ```
+```typescript
+
+connection.on("DumperStatus", (dumperStatus: string) => { ... });
+
+```
 
 Пример данных которые могут прийти операторам:
 
-```
+```json
+
 {
   "Id": 1,
   "State": 1
 }
+
 ```
 Где [Id] - идентификатор задачи для которой отсылается прогноз по статусу автомобиля,
 
@@ -234,15 +271,24 @@ public enum StatusType : short
 
 Метод получения всех задач созданых операторами и назначеных на водителя который вызвал метод:
 
-``` connection.send("GetDriverTasks"); ```
+```typescript
+
+connection.send("GetDriverTasks");
+
+```
 
 Данные прийдут только водителю который вызвал метод.
 
-``` connection.on("GetDriverTasks", (tasks: string) => { ... }); ```
+```typescript
+
+connection.on("GetDriverTasks", (tasks: string) => { ... });
+
+```
 
 Пример данных которые могут прийти оператору:
 
-```
+```json
+
 [
   {
     "Id": 1,
@@ -271,12 +317,17 @@ public enum StatusType : short
 
 Метод изменения статуса у задачи:
 
-``` connection.send("UpdateStatus", "updateStatusCommand"); ```
+```typescript 
+
+connection.send("UpdateStatus", "updateStatusCommand");
+
+```
 
 
 Пример json для параметра [updateStatusCommand] :
 
-``` 
+```json 
+
 {
   "Id": 1,
   "Logist": {
@@ -301,11 +352,16 @@ public enum StatusType : short
 
 Данные прийдут водителю который вызвал метод и всем логистам-операторам.
 
-``` connection.on("UpdateStatus", (tasks: string) => { ... }); ```
+```typescript
+
+connection.on("UpdateStatus", (tasks: string) => { ... });
+
+```
 
 Пример данных которые могут прийти оператору:
 
-```
+```json
+
 [
   {
     "Id": 1,
