@@ -397,3 +397,69 @@ connection.on("UpdateStatus", (tasks: string) => { ... });
 ]
 
 ```
+
+## AuthController
+
+### Login
+
+Для авторизации пользователя нужно обратиться к сервису по ссылке:
+
+```c#
+
+[HttpGet("{login}-{password}")]
+
+```
+
+### Пример
+
+### Обращение к сервису локально.
+
+Сервис работает по адресу: http://localhost:5000/auth/test@gmail.com-654321
+
+### Обращение к сервису в облаке.
+
+Сервис работает по адресу: http://34.77.137.219/auth/test@gmail.com-654321
+
+### Результат
+
+Будет назначена группа Cookies. С ключами: "Id", "Role", "Name".
+
+И произведён редирект:
+
+```c#
+
+return new RedirectResult($"{Request.Scheme}://{Request.Host}/login", true);
+
+```
+
+### Logout
+
+Для авторизации пользователя нужно обратиться к сервису по ссылке:
+
+```c#
+
+[HttpGet("logout")]
+
+```
+
+### Пример
+
+### Обращение к сервису локально.
+
+Сервис работает по адресу: http://localhost:5000/auth/logout
+
+### Обращение к сервису в облаке.
+
+Сервис работает по адресу: http://34.77.137.219/auth/logout
+
+### Результат
+
+Будет удалена группа Cookies. С ключами: "Id", "Role", "Name".
+
+И произведён редирект:
+
+```c#
+
+return new RedirectResult($"{Request.Scheme}://{Request.Host}", true);
+
+```
