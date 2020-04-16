@@ -13,6 +13,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using Task = System.Threading.Tasks.Task;
 
 namespace Ascalon.ClientService.Hubs
@@ -44,11 +46,6 @@ namespace Ascalon.ClientService.Hubs
         {
             try
             {
-                Context.GetHttpContext().Request.Cookies.TryGetValue("Id", out string userId);
-
-                if (string.IsNullOrEmpty(userId))
-                    return;
-
                 using var scope = _serviceProvider.CreateScope();
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
@@ -56,7 +53,7 @@ namespace Ascalon.ClientService.Hubs
 
                 var tasks = (await mediator.Send(new GetDriverTaskQuery()
                 {
-                    DriverId = Convert.ToInt32(userId),
+                    DriverId = GetDriverId(),
                 })).ToJson();
 
                 await Clients.Caller.SendAsync(nameof(GetDriverTasks), tasks);
@@ -122,6 +119,21 @@ namespace Ascalon.ClientService.Hubs
             {
                 _logger.LogError($"Was occured error in method {nameof(UpdateStatus)}.", exception);
             }
+        }
+
+        private int GetDriverId()
+        {
+            var context = Context.GetHttpContext();
+
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(context.Request.Query["access_token"]);
+
+            var role = token.Payload.Where(i => i.Key == "Id").Select(i => i.Value.ToString()).FirstOrDefault();
+
+            if (string.IsNullOrEmpty(role))
+                return 0;
+
+            return Convert.ToInt32(role);
         }
     }
 }

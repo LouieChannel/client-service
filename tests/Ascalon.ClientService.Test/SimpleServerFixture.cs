@@ -3,7 +3,9 @@ using Castle.Core.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -31,31 +33,42 @@ namespace Ascalon.ClientService.Test
 
             mutexObj.ReleaseMutex();
 
+            var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri("http://localhost:5000")
+            };
+
+            var logist = GetDataByResponse<AuthData>(httpClient.PostAsync("/auth", new StringContent("{ \"login\":\"a.mirko@dostaevsky.ru\", \"password\":\"123456\" }",
+                    System.Text.Encoding.UTF8, "application/json")).Result, nameof(SimpleServerFixture));
+
+            var driver = GetDataByResponse<AuthData>(httpClient.PostAsync("/auth", new StringContent("{ \"login\":\"test@gmail.com\", \"password\":\"654321\" }",
+                    System.Text.Encoding.UTF8, "application/json")).Result, nameof(SimpleServerFixture));
+
             GetDriverConnection = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5000/driver", options =>
                 {
-                    options.AccessTokenProvider = () => Task.FromResult(@"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoi0JzQuNGA0LrQviDQkC7QkC4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJMb2dpc3QiLCJuYmYiOjE1ODY5ODE3NDgsImV4cCI6MTU5MDU4MTc0OCwiaXNzIjoiQXNjYWxvbi5DbGllbnRTZXJ2aWNlIiwiYXVkIjoiQXNjYWxvbi5DbGllbnRXZWIifQ.-E1c998XRLIGx3wprvbNgpqWtUqfCMAfu_ngWHx-YJw");
+                    options.AccessTokenProvider = () => Task.FromResult(driver.Access_token);
                 })
                 .Build();
 
             GetDriverConnectionWithLogistCookie = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5000/driver", options =>
                 {
-                    options.AccessTokenProvider = () => Task.FromResult(@"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoi0JzQuNGA0LrQviDQkC7QkC4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJMb2dpc3QiLCJuYmYiOjE1ODY5ODE3NDgsImV4cCI6MTU5MDU4MTc0OCwiaXNzIjoiQXNjYWxvbi5DbGllbnRTZXJ2aWNlIiwiYXVkIjoiQXNjYWxvbi5DbGllbnRXZWIifQ.-E1c998XRLIGx3wprvbNgpqWtUqfCMAfu_ngWHx-YJw");
+                    options.AccessTokenProvider = () => Task.FromResult(logist.Access_token);
                 })
                 .Build();
 
             GetLogistConnection = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5000/logist", options =>
                 {
-                    options.AccessTokenProvider = () => Task.FromResult(@"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoi0JzQuNGA0LrQviDQkC7QkC4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJMb2dpc3QiLCJuYmYiOjE1ODY5ODE3NDgsImV4cCI6MTU5MDU4MTc0OCwiaXNzIjoiQXNjYWxvbi5DbGllbnRTZXJ2aWNlIiwiYXVkIjoiQXNjYWxvbi5DbGllbnRXZWIifQ.-E1c998XRLIGx3wprvbNgpqWtUqfCMAfu_ngWHx-YJw");
+                    options.AccessTokenProvider = () => Task.FromResult(logist.Access_token);
                 })
                 .Build();
 
             GetLogistConnectionWithDriverCookie = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5000/logist", options =>
                 {
-                    options.AccessTokenProvider = () => Task.FromResult(@"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoi0JzQuNGA0LrQviDQkC7QkC4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJMb2dpc3QiLCJuYmYiOjE1ODY5ODE3NDgsImV4cCI6MTU5MDU4MTc0OCwiaXNzIjoiQXNjYWxvbi5DbGllbnRTZXJ2aWNlIiwiYXVkIjoiQXNjYWxvbi5DbGllbnRXZWIifQ.-E1c998XRLIGx3wprvbNgpqWtUqfCMAfu_ngWHx-YJw");
+                    options.AccessTokenProvider = () => Task.FromResult(driver.Access_token);
                 })
                 .Build();
         }
@@ -78,5 +91,18 @@ namespace Ascalon.ClientService.Test
         public HubConnection GetLogistConnection { get; private set; }
 
         public HubConnection GetLogistConnectionWithDriverCookie { get; private set; }
+
+        private T GetDataByResponse<T>(HttpResponseMessage httpResponseMessage, string methodName)
+        {
+            if (!httpResponseMessage.IsSuccessStatusCode)
+                throw new Exception($"{methodName} got not successful status code: StatusCode = {httpResponseMessage.StatusCode}, RequestMessage = {JsonConvert.SerializeObject(httpResponseMessage.RequestMessage)}.");
+
+            var responseObject = httpResponseMessage.Content.ReadAsStringAsync().Result;
+
+            if (string.IsNullOrEmpty(responseObject))
+                throw new NullReferenceException($"{methodName} ordersapi returned empty or null content.");
+
+            return JsonConvert.DeserializeObject<T>(responseObject);
+        }
     }
 }

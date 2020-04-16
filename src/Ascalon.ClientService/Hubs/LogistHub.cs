@@ -11,6 +11,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using ThreadTask = System.Threading.Tasks.Task;
 
 namespace Ascalon.ClientService.Hubs
@@ -115,6 +117,26 @@ namespace Ascalon.ClientService.Hubs
             {
                 _logger.LogError($"Was occured error in method {nameof(UpdateTask)}.", exception);
             }
+        }
+
+        private Features.Tasks.Dtos.User GetLogist()
+        {
+            var context = Context.GetHttpContext();
+
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(context.Request.Query["access_token"]);
+
+            var id = token.Payload.Where(i => i.Key == "Id").Select(i => i.Value.ToString()).FirstOrDefault();
+            var fullName = token.Payload.Where(i => i.Key == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Select(i => i.Value.ToString()).FirstOrDefault();
+
+            if (string.IsNullOrEmpty(id))
+                return null;
+
+            return new Features.Tasks.Dtos.User()
+            {
+                Id = Int32.Parse(id),
+                FullName = fullName
+            };
         }
     }
 }
