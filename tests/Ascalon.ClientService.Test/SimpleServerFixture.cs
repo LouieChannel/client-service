@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Ascalon.ClientService.Test
@@ -34,40 +34,28 @@ namespace Ascalon.ClientService.Test
             GetDriverConnection = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5000/driver", options =>
                 {
-                    options.Cookies = new CookieContainer();
-                    options.Cookies.Add(new Cookie("Id", "2") { Domain = "localhost" });
-                    options.Cookies.Add(new Cookie("Role", "Driver") { Domain = "localhost" });
-                    options.Cookies.Add(new Cookie("Name", "Test1") { Domain = "localhost" });
+                    options.AccessTokenProvider = () => Task.FromResult(@"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoi0JzQuNGA0LrQviDQkC7QkC4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJMb2dpc3QiLCJuYmYiOjE1ODY5ODE3NDgsImV4cCI6MTU5MDU4MTc0OCwiaXNzIjoiQXNjYWxvbi5DbGllbnRTZXJ2aWNlIiwiYXVkIjoiQXNjYWxvbi5DbGllbnRXZWIifQ.-E1c998XRLIGx3wprvbNgpqWtUqfCMAfu_ngWHx-YJw");
                 })
                 .Build();
 
             GetDriverConnectionWithLogistCookie = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5000/driver", options =>
                 {
-                    options.Cookies = new CookieContainer();
-                    options.Cookies.Add(new Cookie("Id", "1") { Domain = "localhost" });
-                    options.Cookies.Add(new Cookie("Role", "Logist") { Domain = "localhost" });
-                    options.Cookies.Add(new Cookie("Name", "Test") { Domain = "localhost" });
+                    options.AccessTokenProvider = () => Task.FromResult(@"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoi0JzQuNGA0LrQviDQkC7QkC4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJMb2dpc3QiLCJuYmYiOjE1ODY5ODE3NDgsImV4cCI6MTU5MDU4MTc0OCwiaXNzIjoiQXNjYWxvbi5DbGllbnRTZXJ2aWNlIiwiYXVkIjoiQXNjYWxvbi5DbGllbnRXZWIifQ.-E1c998XRLIGx3wprvbNgpqWtUqfCMAfu_ngWHx-YJw");
                 })
                 .Build();
 
             GetLogistConnection = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5000/logist", options =>
                 {
-                    options.Cookies = new CookieContainer();
-                    options.Cookies.Add(new Cookie("Id", "1") { Domain = "localhost" });
-                    options.Cookies.Add(new Cookie("Role", "Logist") { Domain = "localhost" });
-                    options.Cookies.Add(new Cookie("Name", "Test") { Domain = "localhost" });
+                    options.AccessTokenProvider = () => Task.FromResult(@"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoi0JzQuNGA0LrQviDQkC7QkC4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJMb2dpc3QiLCJuYmYiOjE1ODY5ODE3NDgsImV4cCI6MTU5MDU4MTc0OCwiaXNzIjoiQXNjYWxvbi5DbGllbnRTZXJ2aWNlIiwiYXVkIjoiQXNjYWxvbi5DbGllbnRXZWIifQ.-E1c998XRLIGx3wprvbNgpqWtUqfCMAfu_ngWHx-YJw");
                 })
                 .Build();
 
             GetLogistConnectionWithDriverCookie = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5000/logist", options =>
                 {
-                    options.Cookies = new CookieContainer();
-                    options.Cookies.Add(new Cookie("Id", "2") { Domain = "localhost" });
-                    options.Cookies.Add(new Cookie("Role", "Driver") { Domain = "localhost" });
-                    options.Cookies.Add(new Cookie("Name", "Test1") { Domain = "localhost" });
+                    options.AccessTokenProvider = () => Task.FromResult(@"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoi0JzQuNGA0LrQviDQkC7QkC4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJMb2dpc3QiLCJuYmYiOjE1ODY5ODE3NDgsImV4cCI6MTU5MDU4MTc0OCwiaXNzIjoiQXNjYWxvbi5DbGllbnRTZXJ2aWNlIiwiYXVkIjoiQXNjYWxvbi5DbGllbnRXZWIifQ.-E1c998XRLIGx3wprvbNgpqWtUqfCMAfu_ngWHx-YJw");
                 })
                 .Build();
         }

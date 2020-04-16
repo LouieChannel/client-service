@@ -1,12 +1,12 @@
 ﻿using Ascalon.ClientService.Features.Tasks.Dtos;
 using Ascalon.ClientService.Features.Tasks.GetDriverTask;
 using Ascalon.ClientService.Features.Tasks.UpdateTask;
-using Ascalon.ClientService.Features.Users.Dtos;
 using Ascalon.ClientService.Infrastructure;
 using Ascalon.ClientService.Kafka;
 using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,13 +39,11 @@ namespace Ascalon.ClientService.Hubs
             _logistHub = logistHub;
         }
 
+        [Authorize(Policy = "Driver")]
         public async Task GetDriverTasks()
         {
             try
             {
-                if (CheckRole())
-                    return;
-
                 Context.GetHttpContext().Request.Cookies.TryGetValue("Id", out string userId);
 
                 if (string.IsNullOrEmpty(userId))
@@ -69,13 +67,11 @@ namespace Ascalon.ClientService.Hubs
             }
         }
 
+        [Authorize(Policy = "Driver")]
         public async Task UpdateStatus(string updateStatusCommand)
         {
             try
             {
-                if (CheckRole())
-                    return;
-
                 if (string.IsNullOrEmpty(updateStatusCommand))
                     return;
 
@@ -126,13 +122,6 @@ namespace Ascalon.ClientService.Hubs
             {
                 _logger.LogError($"Was occured error in method {nameof(UpdateStatus)}.", exception);
             }
-        }
-
-        private bool CheckRole()
-        {
-            Context.GetHttpContext().Request.Cookies.TryGetValue("Role", out string roleId);
-
-            return string.IsNullOrEmpty(roleId) || (roleId == RoleType.Logist.ToString());
         }
     }
 }

@@ -1,12 +1,11 @@
-﻿using Ascalon.ClientService.Features.Exceptions;
-using Ascalon.ClientService.Features.Tasks.CreateTask;
+﻿using Ascalon.ClientService.Features.Tasks.CreateTask;
 using Ascalon.ClientService.Features.Tasks.GetAllTask;
 using Ascalon.ClientService.Features.Tasks.UpdateTask;
-using Ascalon.ClientService.Features.Users.Dtos;
 using Ascalon.ClientService.Infrastructure;
 using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,18 +38,11 @@ namespace Ascalon.ClientService.Hubs
             _driverHub = driverHub;
         }
 
-        public async ThreadTask GetAllTasks(string filteredDate)
+        [Authorize(Policy = "Logist")]
+        public async ThreadTask GetAllTasks()
         {
             try
             {
-                if (CheckRole())
-                    return;
-
-                if (string.IsNullOrEmpty(filteredDate))
-                    return;
-
-                DateTime.TryParse(filteredDate, out DateTime dateTime);
-
                 using var scope = _serviceProvider.CreateScope();
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
@@ -58,7 +50,7 @@ namespace Ascalon.ClientService.Hubs
 
                 var tasks = (await mediator.Send(new GetAllTaskQuery()
                 {
-                    DateFilter = dateTime,
+                    DateFilter = DateTime.Now,
                 })).ToJson();
 
                 await Clients.Caller.SendAsync(nameof(GetAllTasks), tasks);
@@ -69,13 +61,11 @@ namespace Ascalon.ClientService.Hubs
             }
         }
 
+        [Authorize(Policy = "Logist")]
         public async ThreadTask CreateTask(string createTaskCommand)
         {
             try
             {
-                if (CheckRole())
-                    return;
-
                 if (string.IsNullOrEmpty(createTaskCommand))
                     return;
 
@@ -84,7 +74,7 @@ namespace Ascalon.ClientService.Hubs
 
                 var request = createTaskCommand.FromJson<CreateTaskCommand>();
 
-                request.Logist = GetLogistInfomration();
+                request.Logist = null;
 
                 _logger.LogInformation($"{nameof(LogistHub)} with connectionId '{Context.ConnectionId}' received message in method '{nameof(CreateTask)}'");
 
@@ -100,13 +90,11 @@ namespace Ascalon.ClientService.Hubs
             }
         }
 
+        [Authorize(Policy = "Logist")]
         public async ThreadTask UpdateTask(string updateStatusCommand)
         {
             try
             {
-                if (CheckRole())
-                    return;
-
                 if (string.IsNullOrEmpty(updateStatusCommand))
                     return;
 
@@ -127,30 +115,6 @@ namespace Ascalon.ClientService.Hubs
             {
                 _logger.LogError($"Was occured error in method {nameof(UpdateTask)}.", exception);
             }
-        }
-
-        private Features.Tasks.Dtos.User GetLogistInfomration()
-        {
-            var cookies = Context.GetHttpContext().Request.Cookies;
-
-            cookies.TryGetValue("Id", out string id);
-            cookies.TryGetValue("Name", out string fullName);
-
-            if (string.IsNullOrEmpty(id))
-                throw new NotFoundException();
-
-            return new Features.Tasks.Dtos.User()
-            {
-                Id = Convert.ToInt32(id),
-                FullName = fullName
-            };
-        }
-
-        private bool CheckRole()
-        {
-            Context.GetHttpContext().Request.Cookies.TryGetValue("Role", out string roleId);
-
-            return string.IsNullOrEmpty(roleId) || (roleId == RoleType.Driver.ToString());
         }
     }
 }

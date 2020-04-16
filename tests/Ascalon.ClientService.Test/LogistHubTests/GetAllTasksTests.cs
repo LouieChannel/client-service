@@ -48,7 +48,7 @@ namespace Ascalon.ClientService.Test.LogistHubTests
 
                 await logistConnection.StartAsync();
 
-                await logistConnection.InvokeAsync(nameof(LogistHub.GetAllTasks), DateTime.Now.AddDays(1).ToString());
+                await logistConnection.InvokeAsync(nameof(LogistHub.GetAllTasks));
 
                 await logistConnection.StopAsync();
             }
@@ -71,33 +71,7 @@ namespace Ascalon.ClientService.Test.LogistHubTests
 
                 await logistConnection.StartAsync();
 
-                await logistConnection.InvokeAsync(nameof(LogistHub.GetAllTasks), DateTime.Now.ToString());
-
-                await logistConnection.StopAsync();
-            }
-            catch (Exception)
-            {
-            }
-        }
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("test_not_datetime_format")]
-        public async Task GetAllTasks_NotValidDate(string filteredDate)
-        {
-            try
-            {
-                var logistConnection = GetLogistConnection;
-
-                logistConnection.On<string>(nameof(LogistHub.GetAllTasks), orderItem =>
-                {
-                    Assert.Null(orderItem);
-                });
-
-                await logistConnection.StartAsync();
-
-                await logistConnection.InvokeAsync(nameof(LogistHub.GetAllTasks), filteredDate);
+                await logistConnection.InvokeAsync(nameof(LogistHub.GetAllTasks));
 
                 await logistConnection.StopAsync();
             }

@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Ascalon.ClientService.Hubs
@@ -19,14 +22,24 @@ namespace Ascalon.ClientService.Hubs
         {
             _logger.LogInformation($"Connection with id '{Context.ConnectionId}' was opened.");
 
-            Groups.AddToGroupAsync(Context.ConnectionId, GetGroupName());
+            var groupName = GetGroupName();
+
+            if (string.IsNullOrEmpty(groupName))
+                return Task.CompletedTask;
+
+            Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
             return base.OnConnectedAsync();
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            Groups.RemoveFromGroupAsync(Context.ConnectionId, GetGroupName());
+            var groupName = GetGroupName();
+
+            if (string.IsNullOrEmpty(groupName))
+                return Task.CompletedTask;
+
+            Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
 
             _logger.LogInformation($"Connection with id '{Context.ConnectionId}' was closed.");
 
@@ -37,12 +50,28 @@ namespace Ascalon.ClientService.Hubs
         {
             var context = this.Context.GetHttpContext();
 
-            context.Request.Cookies.TryGetValue("Role", out string roleId);
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(context.Request.Query["access_token"]);
 
-            if (roleId == RoleType.Driver.ToString())
-                return context.Request.Cookies["Id"];
-            else if (roleId == RoleType.Logist.ToString())
-                return context.Request.Cookies["Role"];
+            var role = token.Payload.Where(i => i.Key == "Role").Select(i => i.Value.ToString()).FirstOrDefault();
+
+            if (string.IsNullOrEmpty(role))
+                return null;
+
+            foreach (var identity in context.User.Identities)
+                identity.AddClaim(new Claim(role, "1"));
+
+            if (role == RoleType.Driver.ToString())
+            {
+                var id = token.Payload.Where(i => i.Key == "Id").Select(i => i.Value.ToString()).FirstOrDefault();
+
+                if (string.IsNullOrEmpty(id))
+                    return null;
+
+                return id;
+            }
+            else if (role == RoleType.Logist.ToString())
+                return RoleType.Logist.ToString();
 
             return null;
         }
