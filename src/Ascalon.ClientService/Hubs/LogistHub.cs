@@ -76,7 +76,7 @@ namespace Ascalon.ClientService.Hubs
 
                 var request = createTaskCommand.FromJson<CreateTaskCommand>();
 
-                request.Logist = null;
+                request.Logist = GetLogist();
 
                 _logger.LogInformation($"{nameof(LogistHub)} with connectionId '{Context.ConnectionId}' received message in method '{nameof(CreateTask)}'");
 
@@ -124,7 +124,15 @@ namespace Ascalon.ClientService.Hubs
             var context = Context.GetHttpContext();
 
             var handler = new JwtSecurityTokenHandler();
-            var token = handler.ReadJwtToken(context.Request.Query["access_token"]);
+
+            var jwt = string.Empty;
+
+            if (context.Request.Query.ContainsKey("access_token"))
+                jwt = context.Request.Query["access_token"];
+            else
+                jwt = context.Request.Headers.Where(i => i.Key == "Authorization").Select(i => i.Value.FirstOrDefault().Replace("Bearer ", "")).FirstOrDefault();
+
+            var token = handler.ReadJwtToken(jwt);
 
             var id = token.Payload.Where(i => i.Key == "Id").Select(i => i.Value.ToString()).FirstOrDefault();
             var fullName = token.Payload.Where(i => i.Key == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Select(i => i.Value.ToString()).FirstOrDefault();

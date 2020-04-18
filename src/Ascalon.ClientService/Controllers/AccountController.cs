@@ -1,26 +1,26 @@
 ﻿using Ascalon.ClientService.Features.Exceptions;
-using Ascalon.ClientService.Features.Users.GetUser;
+using Ascalon.ClientService.Features.Users.CreateUser;
 using Ascalon.ClientService.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-namespace Ascalon.ClientSerice.Controllers
+namespace Ascalon.ClientService.Controllers
 {
     [Route("[controller]")]
-    public class AuthController : Controller
+    public class AccountController : Controller
     {
         private readonly IMediator _mediator;
 
-        public AuthController(IMediator mediator)
+        public AccountController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
-        [HttpPost()]
-        public async Task<ActionResult> Login([FromBody]GetUserQuery query)
+        [HttpPost("create")]
+        public async Task<ActionResult> Login([FromBody]CreateUserCommand command)
         {
-            var user = await _mediator.Send(query);
+            var user = await _mediator.Send(command);
 
             if (user == null)
                 throw new NotFoundException();
@@ -34,7 +34,5 @@ namespace Ascalon.ClientSerice.Controllers
                 role = user.Role
             });
         }
-
-
     }
 }

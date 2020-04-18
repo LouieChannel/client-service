@@ -1,4 +1,5 @@
-﻿using Ascalon.ClientService.Features.Users.Dtos;
+﻿using Ascalon.ClientService.Features.Exceptions;
+using Ascalon.ClientService.Features.Users.Dtos;
 using Ascalon.ClientService.Features.Users.GetUser.Dtos;
 using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
@@ -29,12 +30,12 @@ namespace Ascalon.ClientService.Features.Users.GetUser
                 var user = await _userRepository.GetUserAsync(request.Login, request.Password);
 
                 if (user == null)
-                    throw new System.Exception();
+                    throw new NotFoundException();
 
                 var role = await _roleRepository.GetRoleByIdAsync(user.RoleId);
 
                 if (role == null)
-                    throw new System.Exception();
+                    throw new NotFoundException();
 
                 return user.ToQueryUser(role.Name);
             });

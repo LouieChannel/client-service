@@ -1,4 +1,5 @@
-﻿using Ascalon.ClientService.Features.Tasks.CreateTask.Dtos;
+﻿using Ascalon.ClientService.Features.Exceptions;
+using Ascalon.ClientService.Features.Tasks.CreateTask.Dtos;
 using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
 using MediatR;
@@ -25,7 +26,7 @@ namespace Ascalon.ClientService.Features.Tasks.CreateTask
             var task = await _tasksRepository.CreateTaskAsync(request.ToEntityTask());
 
             if (task == null)
-                throw new Exception();
+                throw new NotFoundException();
 
             task.Entity.Driver = await _userRepository.GetUserByIdAsync(task.Entity.DriverId);
 

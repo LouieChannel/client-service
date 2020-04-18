@@ -1,4 +1,5 @@
-﻿using Ascalon.ClientService.Features.Tasks.Dtos;
+﻿using Ascalon.ClientService.Features.Exceptions;
+using Ascalon.ClientService.Features.Tasks.Dtos;
 using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
 using MediatR;
@@ -27,7 +28,7 @@ namespace Ascalon.ClientService.Features.Tasks.GetTask
                 var task = await _tasksRepository.GetTaskByIdAsync(request.Id);
 
                 if (task == null)
-                    throw new Exception();
+                    throw new NotFoundException();
 
                 return task.ToQueryTask();
             });

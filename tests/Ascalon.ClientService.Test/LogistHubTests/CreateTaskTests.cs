@@ -32,7 +32,7 @@ namespace Ascalon.ClientService.Test.LogistHubTests
 
             await logistConnection.StartAsync();
 
-            await logistConnection.InvokeAsync(nameof(LogistHub.CreateTask), "{\"Driver\":{\"Id\":2, \"FullName\":\"Test\"},\"Description\":\"test\",\"StartLongitude\":50.1354,\"StartLatitude\":30.4324,\"EndLongitude\":1.4342,\"EndLatitude\":43.1234,\"Status\":1,\"Entity\":\"dasfas\"}");
+            await logistConnection.InvokeAsync(nameof(LogistHub.CreateTask), "{\"Driver\":{\"Id\":2, \"FullName\":\"Test\"},\"Description\":\"Go to\",\"StartLongitude\":50.1354,\"StartLatitude\":30.4324,\"EndLongitude\":1.4342,\"EndLatitude\":43.1234,\"Status\":1,\"Entity\":\"dasfas\"}");
 
             await driverConnection.StopAsync();
 

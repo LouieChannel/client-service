@@ -3,6 +3,9 @@ using MediatR;
 
 namespace Ascalon.ClientService.Features.Tasks.CreateTask
 {
+    /// <summary>
+    /// Комманда сохранения задачи.
+    /// </summary>
     public class CreateTaskCommand : IRequest<Task>
     {
         /// <summary>

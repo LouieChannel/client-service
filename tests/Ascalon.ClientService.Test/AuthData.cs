@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Ascalon.ClientService.Test
+﻿namespace Ascalon.ClientService.Test
 {
     public class AuthData
     {

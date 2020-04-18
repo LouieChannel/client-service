@@ -25,48 +25,52 @@ namespace Ascalon.ClientService.Test
 
             mutexObj.WaitOne();
 
+            AuthData logist = null;
+
+            AuthData driver = null;
+
             if (_webHost == null)
             {
                 _webHost = CreateHostBuilder().Build();
                 _webHost.Start();
+
+                var httpClient = new HttpClient
+                {
+                    BaseAddress = new Uri("http://localhost:5000")
+                };
+
+                logist = GetDataByResponse<AuthData>(httpClient.PostAsync("/auth", new StringContent("{ \"login\":\"a.mirko@dostaevsky.ru\", \"password\":\"123456\" }",
+                  System.Text.Encoding.UTF8, "application/json")).Result, nameof(SimpleServerFixture));
+
+                driver = GetDataByResponse<AuthData>(httpClient.PostAsync("/auth", new StringContent("{ \"login\":\"test@gmail.com\", \"password\":\"654321\" }",
+                       System.Text.Encoding.UTF8, "application/json")).Result, nameof(SimpleServerFixture));
             }
 
             mutexObj.ReleaseMutex();
 
-            var httpClient = new HttpClient
-            {
-                BaseAddress = new Uri("http://localhost:5000")
-            };
-
-            var logist = GetDataByResponse<AuthData>(httpClient.PostAsync("/auth", new StringContent("{ \"login\":\"a.mirko@dostaevsky.ru\", \"password\":\"123456\" }",
-                    System.Text.Encoding.UTF8, "application/json")).Result, nameof(SimpleServerFixture));
-
-            var driver = GetDataByResponse<AuthData>(httpClient.PostAsync("/auth", new StringContent("{ \"login\":\"test@gmail.com\", \"password\":\"654321\" }",
-                    System.Text.Encoding.UTF8, "application/json")).Result, nameof(SimpleServerFixture));
-
             GetDriverConnection = new HubConnectionBuilder()
-                .WithUrl("http://localhost:5000/driver", options =>
+                .WithUrl("http://localhost:5000/driver/", options =>
                 {
                     options.AccessTokenProvider = () => Task.FromResult(driver.Access_token);
                 })
                 .Build();
 
             GetDriverConnectionWithLogistCookie = new HubConnectionBuilder()
-                .WithUrl("http://localhost:5000/driver", options =>
+                .WithUrl("http://localhost:5000/driver/", options =>
                 {
                     options.AccessTokenProvider = () => Task.FromResult(logist.Access_token);
                 })
                 .Build();
 
             GetLogistConnection = new HubConnectionBuilder()
-                .WithUrl("http://localhost:5000/logist", options =>
+                .WithUrl("http://localhost:5000/logist/", options =>
                 {
                     options.AccessTokenProvider = () => Task.FromResult(logist.Access_token);
                 })
                 .Build();
 
             GetLogistConnectionWithDriverCookie = new HubConnectionBuilder()
-                .WithUrl("http://localhost:5000/logist", options =>
+                .WithUrl("http://localhost:5000/logist/", options =>
                 {
                     options.AccessTokenProvider = () => Task.FromResult(driver.Access_token);
                 })

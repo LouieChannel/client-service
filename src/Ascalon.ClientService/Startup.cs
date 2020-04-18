@@ -60,12 +60,14 @@ namespace Ascalon.ClientSerice
                         };
                     });
 
+            var clientHost = Configuration.GetSection("ClientWebsite").Get<ClientWebsite>();
+
             services.AddCors(options =>
             {
                 options.AddPolicy(MyAllowSpecificOrigins,
                 builder =>
                 {
-                    builder.WithOrigins("http://localhost:3000")
+                    builder.WithOrigins(clientHost.Host)
                         .AllowCredentials()
                         .AllowAnyHeader()
                         .AllowAnyMethod();

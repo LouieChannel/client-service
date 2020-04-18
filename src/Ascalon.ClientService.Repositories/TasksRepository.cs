@@ -16,7 +16,6 @@ namespace Ascalon.ClientService.Repositories
 
         private readonly DbContext _dbContext;
 
-
         public TasksRepository(DbContext context) : base(context)
         {
             _dbContext = context;

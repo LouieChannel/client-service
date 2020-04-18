@@ -15,7 +15,6 @@
         /// </summary>
         public string Role { get; set; }
 
-
         /// <summary>
         /// Возвращает или задаёт ФИО пользователя.
         /// </summary>

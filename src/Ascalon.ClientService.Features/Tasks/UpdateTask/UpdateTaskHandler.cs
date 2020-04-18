@@ -1,4 +1,5 @@
-﻿using Ascalon.ClientService.Features.Tasks.UpdateTask.Dtos;
+﻿using Ascalon.ClientService.Features.Exceptions;
+using Ascalon.ClientService.Features.Tasks.UpdateTask.Dtos;
 using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
 using MediatR;
@@ -24,7 +25,7 @@ namespace Ascalon.ClientService.Features.Tasks.UpdateTask
             var updatedTask = await _tasksRepository.UpdateTaskAsync(request.ToDataTask());
 
             if (updatedTask == null)
-                throw new Exception();
+                throw new NotFoundException();
 
             updatedTask.Entity.Driver = await _usersRepository.GetUserByIdAsync(updatedTask.Entity.DriverId);
             updatedTask.Entity.Logist = await _usersRepository.GetUserByIdAsync(updatedTask.Entity.LogistId);
