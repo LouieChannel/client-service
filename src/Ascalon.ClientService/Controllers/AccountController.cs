@@ -17,7 +17,7 @@ namespace Ascalon.ClientService.Controllers
             _mediator = mediator;
         }
 
-        [HttpPost("create")]
+        [HttpPost()]
         public async Task<ActionResult> Login([FromBody]CreateUserCommand command)
         {
             var user = await _mediator.Send(command);
