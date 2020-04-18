@@ -477,3 +477,66 @@ connection.on("UpdateStatus", (tasks: string) => { ... });
   "username": "DriverTest"
 }
 ```
+
+## AccountController
+
+### Create
+
+Для создания нового пользователя нужно обратиться к сервису по ссылке:
+
+```c#
+
+[HttpPost()]
+
+```
+
+Пример body запроса:
+
+```json
+
+{
+	"Login":"test2@test.ru",
+	"Password":"qwerty",
+	"FullName":"Test test",
+	"Role":1
+}
+
+```
+
+В результате будет получен JWT токен и дополнительные поля для авторизации.
+
+### Пример
+
+### Обращение к сервису локально.
+
+Сервис работает по адресу: http://localhost:5000/account
+
+### Обращение к сервису в облаке.
+
+Сервис работает по адресу: http://34.77.137.219/account
+
+### Результат
+
+Вернётся обьект: 
+```js
+
+{
+  config: Object { url: "http://localhost:5000/auth", method: "post", data: "{\"login\":\"test@gmail.com\",\"password\":\"654321\"}", … },
+  data: Object { access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiRHJpdmVyVGVzdCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkRyaXZlciIsIklkIjoiMiIsIlJvbGUiOiJEcml2ZXIiLCJuYmYiOjE1ODY5OTgwMDEsImV4cCI6MTU5MDU5ODAwMSwiaXNzIjoiQXNjYWxvbi5DbGllbnRTZXJ2aWNlIiwiYXVkIjoiQXNjYWxvbi5DbGllbnRXZW IifQ.fFaVmm8Qee68JisX8jpVItamh5pId9qD9Xy5ebx8eoA", username: "DriverTest", role: "Driver" },
+  headers: Object { "content-type": "application/json; charset=utf-8" },
+  request: XMLHttpRequest { readyState: 4, timeout: 0, withCredentials: false, … },
+  status: 200,
+  statusText: "OK"
+}
+
+```
+
+где data:
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiRHJpdmVyVGVzdCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkRyaXZlciIsIklkIjoiMiIsIlJvbGUiOiJEcml2ZXIiLCJuYmYiOjE1ODY5OTgwMDEsImV4cCI6MTU5MDU5ODAwMSwiaXNzIjoiQXNjYWxvbi5DbGllbnRTZXJ2aWNlIiwiYXVkIjoiQXNjYWxvbi5DbGllbnRXZWIifQ.fFaVmm8Qee68JisX8jpVItamh5pId9qD9Xy5ebx8eoA",
+  "role": "Driver",
+  "username": "DriverTest"
+}
+```
