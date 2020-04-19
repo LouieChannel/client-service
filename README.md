@@ -82,6 +82,38 @@ docker-compose down
 
 Сервис работает по адресу: http://34.77.137.219/logist
 
+### GetAllDrivers
+
+Метод получения всех водителей из базы:
+
+```typescript
+
+connection.send("GetAllDrivers");
+
+```
+
+Данные прийдут только оператору который вызвал метод.
+
+```typescript 
+
+connection.on("GetAllDrivers", (tasks: string) => { ... });
+
+```
+
+Пример данных которые могут прийти оператору:
+
+```json
+
+[
+  {
+    "Id": 2,
+    "Role": "Driver",
+    "FullName": "DriverTest"
+  }
+]
+
+```
+
 ### GetAllTasks
 
 Метод получения всех задач созданых операторами:
