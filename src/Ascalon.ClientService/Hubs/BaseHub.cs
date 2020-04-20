@@ -1,9 +1,11 @@
 ﻿using Ascalon.ClientService.Features.Users.Dtos;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -12,10 +14,14 @@ namespace Ascalon.ClientService.Hubs
     public abstract class BaseHub : Hub
     {
         private readonly ILogger _logger;
+        private static HttpClient _httpClient;
 
-        public BaseHub(ILogger logger)
+        public BaseHub(ILogger logger, IHttpClientFactory clientFactory)
         {
             _logger = logger;
+
+            _httpClient = clientFactory.CreateClient();
+            _httpClient.BaseAddress = new Uri("http://35.210.232.15");
         }
 
         public override Task OnConnectedAsync()
@@ -28,6 +34,9 @@ namespace Ascalon.ClientService.Hubs
                 return Task.CompletedTask;
 
             Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+
+            if (TryGetId(groupName, out string Id))
+                _httpClient.GetAsync($"/shift/start/{Id}");
 
             return base.OnConnectedAsync();
         }
@@ -43,23 +52,32 @@ namespace Ascalon.ClientService.Hubs
 
             _logger.LogInformation($"Connection with id '{Context.ConnectionId}' was closed.");
 
+            if (TryGetId(groupName, out string Id))
+                _httpClient.GetAsync($"/shift/stop/{Id}");
+
             return base.OnDisconnectedAsync(exception);
+        }
+
+        private bool TryGetId(string roleType, out string id)
+        {
+            id = null;
+
+            var context = Context.GetHttpContext();
+
+            var token = GetJwtSecurityToken(context);
+
+            if (roleType != RoleType.Logist.ToString())
+                return false;
+
+            id = token.Payload.Where(i => i.Key == "Id").Select(i => i.Value.ToString()).FirstOrDefault();
+            return true;
         }
 
         private string GetGroupName()
         {
-            var context = this.Context.GetHttpContext();
+            var context = Context.GetHttpContext();
 
-            var handler = new JwtSecurityTokenHandler();
-
-            var jwt = string.Empty;
-
-            if (context.Request.Query.ContainsKey("access_token"))
-                jwt = context.Request.Query["access_token"];
-            else
-                jwt = context.Request.Headers.Where(i => i.Key == "Authorization").Select(i => i.Value.FirstOrDefault().Replace("Bearer ", "")).FirstOrDefault();
-
-            var token = handler.ReadJwtToken(jwt);
+            var token = GetJwtSecurityToken(context);
 
             var role = token.Payload.Where(i => i.Key == "Role").Select(i => i.Value.ToString()).FirstOrDefault();
 
@@ -82,6 +100,20 @@ namespace Ascalon.ClientService.Hubs
                 return RoleType.Logist.ToString();
 
             return null;
+        }
+
+        private JwtSecurityToken GetJwtSecurityToken(HttpContext context)
+        {
+            var handler = new JwtSecurityTokenHandler();
+
+            var jwt = string.Empty;
+
+            if (context.Request.Query.ContainsKey("access_token"))
+                jwt = context.Request.Query["access_token"];
+            else
+                jwt = context.Request.Headers.Where(i => i.Key == "Authorization").Select(i => i.Value.FirstOrDefault().Replace("Bearer ", "")).FirstOrDefault();
+
+            return handler.ReadJwtToken(jwt);
         }
     }
 }

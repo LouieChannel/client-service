@@ -1,6 +1,7 @@
 ﻿using Ascalon.ClientService.Features.Tasks.CreateTask;
 using Ascalon.ClientService.Features.Tasks.GetAllTask;
 using Ascalon.ClientService.Features.Tasks.UpdateTask;
+using Ascalon.ClientService.Features.Users.GetDrivers;
 using Ascalon.ClientService.Infrastructure;
 using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
 using ThreadTask = System.Threading.Tasks.Task;
 
 namespace Ascalon.ClientService.Hubs
@@ -22,6 +24,7 @@ namespace Ascalon.ClientService.Hubs
         private readonly ILogger<LogistHub> _logger;
         private readonly IMemoryCache _cache;
         private readonly TasksRepository _tasksRepository;
+        private readonly UsersRepository _usersRepository;
         private readonly IServiceProvider _serviceProvider;
         private readonly IHubContext<DriverHub> _driverHub;
 
@@ -31,11 +34,13 @@ namespace Ascalon.ClientService.Hubs
             ILogger<LogistHub> logger,
             IUnitOfWork uow,
             IMemoryCache cache,
-            IHubContext<DriverHub> driverHub) : base(logger)
+            IHttpClientFactory clientFactory,
+            IHubContext<DriverHub> driverHub) : base(logger, clientFactory)
         {
             _serviceProvider = serviceProvider;
             _cache = cache;
             _tasksRepository = uow.GetRepository<TasksRepository>();
+            _usersRepository = uow.GetRepository<UsersRepository>();
             _logger = logger;
             _driverHub = driverHub;
         }
@@ -85,6 +90,29 @@ namespace Ascalon.ClientService.Hubs
                 await Clients.Group("Logist").SendAsync(nameof(CreateTask), task);
 
                 await _driverHub.Clients.Group(request.Driver.Id.ToString()).SendAsync(nameof(CreateTask), task);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Was occured error in method {nameof(CreateTask)}.", exception);
+            }
+        }
+
+        [Authorize(Policy = "Logist")]
+        public async ThreadTask GetAllDrivers()
+        {
+            try
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                var drivers = (await mediator.Send(new GetDriversQuery())).ToJson();
+
+                if (string.IsNullOrEmpty(drivers))
+                    return;
+
+                _logger.LogInformation($"{nameof(LogistHub)} with connectionId '{Context.ConnectionId}' received message in method '{nameof(CreateTask)}'");
+
+                await Clients.Caller.SendAsync(nameof(GetAllDrivers), drivers);
             }
             catch (Exception exception)
             {

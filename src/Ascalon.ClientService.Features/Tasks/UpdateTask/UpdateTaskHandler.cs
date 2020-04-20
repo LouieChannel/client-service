@@ -3,7 +3,6 @@ using Ascalon.ClientService.Features.Tasks.UpdateTask.Dtos;
 using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
 using MediatR;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 

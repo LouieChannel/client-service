@@ -4,7 +4,6 @@ using Ascalon.ClientService.Repositories;
 using Ascalon.Uow;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 

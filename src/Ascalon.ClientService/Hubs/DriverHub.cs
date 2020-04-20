@@ -15,6 +15,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
 using Task = System.Threading.Tasks.Task;
 
 namespace Ascalon.ClientService.Hubs
@@ -32,7 +33,8 @@ namespace Ascalon.ClientService.Hubs
             ILogger<DriverHub> logger,
             IUnitOfWork uow,
             IMemoryCache cache,
-            IHubContext<LogistHub> logistHub) : base(logger)
+            IHttpClientFactory clientFactory,
+            IHubContext<LogistHub> logistHub) : base(logger, clientFactory)
         {
             _serviceProvider = serviceProvider;
             _memoryCache = cache;

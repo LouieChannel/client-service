@@ -42,6 +42,8 @@ namespace Ascalon.ClientSerice
 
             services.AddMemoryCache();
 
+            services.AddHttpClient();
+
             services.Configure<ClientWebsite>(Configuration.GetSection(nameof(ClientWebsite)));
 
             services.AddDbContext<ClientServiceContext>(options => options.UseNpgsql(Configuration.GetConnectionString("ClientService")));

@@ -36,6 +36,8 @@ namespace Ascalon.ClientService.Repositories
         public virtual Task<List<User>> GetDriversAsync() => Entities.Where(i => i.RoleId == DriverRoleId)
             .ToListAsync();
 
+        public virtual Task<int> GetCountEntities() => Entities.CountAsync();
+
         public virtual ValueTask<EntityEntry<User>> CreateUserAsync(User user)
         {
             var result = _dbContext.AddAsync(user);
