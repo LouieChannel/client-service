@@ -21,7 +21,7 @@ namespace Ascalon.ClientService.Hubs
             _logger = logger;
 
             _httpClient = clientFactory.CreateClient();
-            _httpClient.BaseAddress = new Uri("http://35.210.232.15");
+            _httpClient.BaseAddress = new Uri("http://35.228.72.226");
         }
 
         public override Task OnConnectedAsync()
@@ -62,14 +62,11 @@ namespace Ascalon.ClientService.Hubs
         {
             id = null;
 
-            var context = Context.GetHttpContext();
-
-            var token = GetJwtSecurityToken(context);
-
-            if (roleType != RoleType.Logist.ToString())
+            if (roleType == RoleType.Logist.ToString())
                 return false;
 
-            id = token.Payload.Where(i => i.Key == "Id").Select(i => i.Value.ToString()).FirstOrDefault();
+            id = roleType;
+
             return true;
         }
 
