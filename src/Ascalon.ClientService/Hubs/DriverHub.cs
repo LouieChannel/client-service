@@ -95,9 +95,9 @@ namespace Ascalon.ClientService.Hubs
                         return new ConcurrentDictionary<int, int>();
                     });
 
-                    driverTasks.TryAdd(task.Driver.DumperId.Value, task.Id);
+                    driverTasks.TryAdd(task.Driver.Id, task.Id);
 
-                    notificationTasks.TryGetValue(task.Driver.DumperId.Value, out int predict);
+                    notificationTasks.TryGetValue(task.Driver.Id, out int predict);
 
                     if (predict != 0)
                         await _logistHub.Clients.Group("Logist").SendAsync("DumperStatus", new DumperStatus()
@@ -108,7 +108,7 @@ namespace Ascalon.ClientService.Hubs
                 }
                 else if (request.Status == StatusType.Done || request.Status == StatusType.Cancelled)
                 {
-                    driverTasks.TryRemove(task.Driver.DumperId.Value, out int taskId);
+                    driverTasks.TryRemove(task.Driver.Id, out int taskId);
                 }
 
                 var result = task.ToJson();

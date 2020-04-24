@@ -29,15 +29,15 @@ namespace Ascalon.ClientService.Features.Users.CreateUser
             var dumperId = default(int?);
 
             if (request.Role == RoleType.Driver)
-                dumperId = await _memoryCache.GetOrCreateAsync("dumperId", options =>
+                dumperId = (await _memoryCache.GetOrCreateAsync("dumperId", options =>
                 {
                     return _userRepository.GetMaxDumperId();
-                });
+                }))+1;
 
             var user = await _userRepository.CreateUserAsync(request.ToDataBaseContext(dumperId));
 
             if (request.Role == RoleType.Driver)
-                _memoryCache.Set("dumperId", dumperId++);
+                _memoryCache.Set("dumperId", dumperId);
 
             if (user == null)
                 throw new NotFoundException();
