@@ -21,7 +21,7 @@ namespace Ascalon.ClientService.Features.Tasks.UpdateTask
 
         public async Task<Tasks.Dtos.Task> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
         {
-            var updatedTask = await _tasksRepository.UpdateTaskAsync(request.ToDataTask());
+            var updatedTask =  _tasksRepository.UpdateTaskAsync(request.ToDataTask());
 
             if (updatedTask == null)
                 throw new NotFoundException();

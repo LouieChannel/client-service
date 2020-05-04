@@ -33,9 +33,14 @@ namespace Ascalon.ClientService.Repositories
         public virtual Task<Task> GetTaskByIdAsync(int id) => Entities.Where(i => i.Id == id)
             .FirstOrDefaultAsync();
 
-        public virtual Task<EntityEntry<Task>> UpdateTaskAsync(Task task) =>
-            TaskThread.Run(() => Entities
-            .Update(task));
+        public virtual EntityEntry<Task> UpdateTaskAsync(Task task)
+        {
+            var result = _dbContext.Update(task);
+
+            _dbContext.SaveChanges();
+
+            return result;
+        }
 
         public virtual async Task<List<Task>> GetTasks(DateTime filteredDate) => (await Entities.ToListAsync()
             ).Where(i => (filteredDate.Date <= i.CreatedAt) && (i.CreatedAt < filteredDate.AddDays(1).Date)).ToList();
